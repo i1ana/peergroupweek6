@@ -4,15 +4,12 @@ var fs = require('fs')
 var express = require('express');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
-// Create Express App Object \\
 var app = express();
 
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname + '/public'));
-
 
 
 app.get('/', function(req, res){
@@ -20,19 +17,40 @@ app.get('/', function(req, res){
 })
 
 app.get('/:location', function(req, res){
-	res.send(req.params.location)
-	res.redirect(req.params.location)
+	console.log("xxx", req.params.location)
+	try {
+		var stat = fs.statSync("/Users/student/projects/magellan/public/" + req.params.location)
+		if (stat.isFile()){
+			console.log("exists")
+		res.sendFile(req.params.location, {root: './public'})
+		} else {
+			console.log("404 error")
+			res.status(404); 
+			res.send("Magellan didn't go here bro")
+			}
+	} catch(err){
+		console.log("404 error")
+			res.status(404); 
+			res.send("not found")
+	}
 })
 
-// app.post('/formsubmit', function(req, res){
-
-// 	res.redirect('carnary.html')
-
-// })
 
 
+// app.use(function(req, res){
+// 	res.send("Couldn't find page")
+// });
+
+// var oops = function(req, res, next){
+// 	console.log("Oops!")
+// 	var theError = new Error()
+// 	theError.whatHappened = 'everything is on fire'
+// 	next(theError)
+// }
+// app.use(oops)
 
 var port = 3000
 app.listen(port, function(){
 	console.log("I am working")
 })
+
